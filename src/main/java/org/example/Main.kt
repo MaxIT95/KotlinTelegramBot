@@ -4,8 +4,30 @@ import java.io.File
 
 fun main() {
     val file = File("src/main/resources/words.txt")
+    val dictionary = loadDictionary(file)
 
-    var dictionaries = mutableListOf<Word>()
+    while (true) {
+        println(
+            "Меню: \n" +
+                    "1 – Учить слова\n" +
+                    "2 – Статистика\n" +
+                    "0 – Выход"
+        )
+        val input = readln()
+
+        when (input) {
+            "1" -> println("Вы выбрали учить слова")
+            "2" -> println("Вы выбрали учить статистику")
+            "0" -> break
+            else -> {
+                println("Введите число 1, 2 или 0")
+            }
+        }
+    }
+}
+
+fun loadDictionary(file: File): List<Word> {
+    val dictionaries = mutableListOf<Word>()
     val lines = file.readLines()
 
     lines.forEach {
@@ -17,5 +39,5 @@ fun main() {
         }
         dictionaries.add(word)
     }
-    println(dictionaries)
+    return dictionaries;
 }
