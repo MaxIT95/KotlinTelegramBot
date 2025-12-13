@@ -2,6 +2,8 @@ package org.example
 
 import java.io.File
 
+const val MIN_COUNT_GOOD_ANSWER = 3
+
 fun main() {
     val file = File("src/main/resources/words.txt")
     val dictionary = loadDictionary(file)
@@ -17,13 +19,24 @@ fun main() {
 
         when (input) {
             "1" -> println("Вы выбрали учить слова")
-            "2" -> println("Вы выбрали учить статистику")
+            "2" -> println(getStatistic(dictionary))
             "0" -> break
             else -> {
                 println("Введите число 1, 2 или 0")
             }
         }
     }
+}
+
+fun getStatistic(words: List<Word>): String {
+    val allWordsCount = words.size
+    val learnedCount = words.filter { it.correctAnswersCount >= MIN_COUNT_GOOD_ANSWER }.size
+    var percent = 0
+
+    if (allWordsCount > 0) {
+        percent = (learnedCount * 100) / allWordsCount
+    }
+    return "Выучено $learnedCount из $allWordsCount слов | $percent%\n"
 }
 
 fun loadDictionary(file: File): List<Word> {
