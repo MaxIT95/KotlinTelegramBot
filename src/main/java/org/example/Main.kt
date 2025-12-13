@@ -31,12 +31,10 @@ fun main() {
 fun getStatistic(words: List<Word>): String {
     val allWordsCount = words.size
     val learnedCount = words.filter { it.correctAnswersCount >= MIN_COUNT_GOOD_ANSWER }.size
-    var percent: Int
+    var percent = 0
 
     if (allWordsCount > 0) {
         percent = (learnedCount * 100) / allWordsCount
-    } else {
-        percent = 0
     }
     return "Выучено $learnedCount из $allWordsCount слов | $percent%\n"
 }
