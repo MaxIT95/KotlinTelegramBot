@@ -1,9 +1,9 @@
 package org.example
 
 import java.io.File
-import kotlin.math.PI
 
 const val MIN_COUNT_GOOD_ANSWER = 3
+const val COUNT_VARIANTS = 4
 
 fun main() {
     val file = File("src/main/resources/words.txt")
@@ -30,42 +30,32 @@ fun main() {
 }
 
 fun learnWords(dictionary: List<Word>) {
-    val alreadyLearnedList = dictionary.filter { it.correctAnswersCount > MIN_COUNT_GOOD_ANSWER }
-    val notLearnedList = dictionary.filter { it.correctAnswersCount < MIN_COUNT_GOOD_ANSWER }
-    var questionWords: MutableList<Word>
-
     while (true) {
+        val notLearnedList = dictionary.filter { it.correctAnswersCount <= MIN_COUNT_GOOD_ANSWER }
         if (notLearnedList.isEmpty()) {
             println("Все слова в словаре выучены")
             break
         }
-        questionWords = notLearnedList.take(4).shuffled().toMutableList()
-        validateResponseCount(questionWords, alreadyLearnedList)
-        val correctAnswer = questionWords.random()
+        var variants = notLearnedList.shuffled().take(COUNT_VARIANTS)
 
-        println(
-            "${correctAnswer.original}:\n" +
-                    " 1 - ${questionWords.get(0).translate}\n" +
-                    " 2 - ${questionWords.get(1).translate}\n" +
-                    " 3 - ${questionWords.get(2).translate}\n" +
-                    " 4 - ${questionWords.get(3).translate}"
-        )
+        val correctAnswer = variants.random()
+        val questionWords = if (variants.size < COUNT_VARIANTS) {
+            val learnedList = dictionary.filter { it.correctAnswersCount >= MIN_COUNT_GOOD_ANSWER }.shuffled()
+            variants + learnedList.take(COUNT_VARIANTS - notLearnedList.size)
+        } else {
+            variants
+        }.shuffled()
+        println("${correctAnswer.original}:")
+        questionWords.forEachIndexed { index, word ->
+            println(" ${index + 1} - ${word.translate}\n")
+        }
+
         val inputAnswer = readln().toInt()
 
         if (questionWords[inputAnswer - 1] == correctAnswer) {
             println("Верный ответ!")
             break
         }
-    }
-}
-
-fun validateResponseCount(responses: MutableList<Word>, learnedWords: List<Word>) {
-    while (responses.size < 4) {
-        val word = learnedWords.random();
-        if (responses.contains(word)) {
-            continue
-        }
-        responses.add(word)
     }
 }
 
@@ -93,5 +83,5 @@ fun loadDictionary(file: File): List<Word> {
         }
         dictionaries.add(word)
     }
-    return dictionaries;
+    return dictionaries
 }
