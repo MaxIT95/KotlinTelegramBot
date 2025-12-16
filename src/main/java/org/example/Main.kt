@@ -3,6 +3,7 @@ package org.example
 import java.io.File
 
 const val MIN_COUNT_GOOD_ANSWER = 3
+const val COUNT_VARIANTS = 4
 
 fun main() {
     val file = File("src/main/resources/words.txt")
@@ -18,12 +19,42 @@ fun main() {
         val input = readln()
 
         when (input) {
-            "1" -> println("Вы выбрали учить слова")
+            "1" -> learnWords(dictionary)
             "2" -> println(getStatistic(dictionary))
             "0" -> break
             else -> {
                 println("Введите число 1, 2 или 0")
             }
+        }
+    }
+}
+
+fun learnWords(dictionary: List<Word>) {
+    while (true) {
+        val notLearnedList = dictionary.filter { it.correctAnswersCount <= MIN_COUNT_GOOD_ANSWER }
+        if (notLearnedList.isEmpty()) {
+            println("Все слова в словаре выучены")
+            break
+        }
+        var variants = notLearnedList.shuffled().take(COUNT_VARIANTS)
+
+        val correctAnswer = variants.random()
+        val questionWords = if (variants.size < COUNT_VARIANTS) {
+            val learnedList = dictionary.filter { it.correctAnswersCount >= MIN_COUNT_GOOD_ANSWER }.shuffled()
+            variants + learnedList.take(COUNT_VARIANTS - notLearnedList.size)
+        } else {
+            variants
+        }.shuffled()
+        println("${correctAnswer.original}:")
+        questionWords.forEachIndexed { index, word ->
+            println(" ${index + 1} - ${word.translate}\n")
+        }
+
+        val inputAnswer = readln().toInt()
+
+        if (questionWords[inputAnswer - 1] == correctAnswer) {
+            println("Верный ответ!")
+            break
         }
     }
 }
@@ -52,5 +83,5 @@ fun loadDictionary(file: File): List<Word> {
         }
         dictionaries.add(word)
     }
-    return dictionaries;
+    return dictionaries
 }
