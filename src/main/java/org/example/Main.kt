@@ -54,7 +54,12 @@ fun learnWords(dictionary: List<Word>) {
         }
         println("----------\n0 - Меню")
 
-        val inputAnswer = readln().toInt()
+        val inputAnswer = readln().toIntOrNull()
+
+        if (inputAnswer == null) {
+            println("Вы не указали номер ответа")
+            continue
+        }
 
         if (inputAnswer == 0) {
             break
@@ -63,7 +68,6 @@ fun learnWords(dictionary: List<Word>) {
                 println("Правильно! $NEXT_LINE")
                 correctAnswer.correctAnswersCount++
                 saveDictionary(dictionary)
-                break
             } else {
                 println("Неправильно! ${correctAnswer.original} это ${correctAnswer.translate} $NEXT_LINE")
             }
