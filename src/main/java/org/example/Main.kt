@@ -78,7 +78,7 @@ fun saveDictionary(dictionary: List<Word>) {
     dictionary.forEach {
         newDictionary.append(it.original)
         newDictionary.append(SPLITTER)
-        newDictionary.append(it.original)
+        newDictionary.append(it.translate)
         newDictionary.append(SPLITTER)
         newDictionary.append(it.correctAnswersCount)
         newDictionary.append(NEXT_LINE)
