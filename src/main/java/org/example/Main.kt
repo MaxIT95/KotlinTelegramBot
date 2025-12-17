@@ -60,12 +60,12 @@ fun learnWords(dictionary: List<Word>) {
             break
         } else {
             if (questionWords[inputAnswer - 1] == correctAnswer) {
-                println("Правильно!")
+                println("Правильно! $NEXT_LINE")
                 correctAnswer.correctAnswersCount++
                 saveDictionary(dictionary)
                 break
             } else {
-                println("Неправильно! ${correctAnswer.original} это ${correctAnswer.translate}")
+                println("Неправильно! ${correctAnswer.original} это ${correctAnswer.translate} $NEXT_LINE")
             }
         }
     }
