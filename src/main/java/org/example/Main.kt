@@ -32,7 +32,7 @@ fun main() {
                     println("${question.correctAnswer.original}:")
                     question.printVariants()
                     val input = readln().toIntOrNull()
-                    val isCorrectAnswer = trainer.checkAnswer(input)
+                    val isCorrectAnswer = trainer.checkAnswer(input?.minus(1))
 
                     if (isCorrectAnswer) {
                         println("Правильно! $NEXT_LINE")

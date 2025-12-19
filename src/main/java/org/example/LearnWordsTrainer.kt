@@ -42,7 +42,6 @@ class LearnWordsTrainer {
         val notLearnedList = dictionary.filter { it.correctAnswersCount <= MIN_COUNT_GOOD_ANSWER }
 
         if (notLearnedList.isEmpty()) {
-            println("Все слова в словаре выучены")
             return null
         }
         val variants = notLearnedList.shuffled().take(COUNT_VARIANTS)
