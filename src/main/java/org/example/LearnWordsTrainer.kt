@@ -44,12 +44,11 @@ class LearnWordsTrainer {
         if (notLearnedList.isEmpty()) {
             return null
         }
-        val variants = notLearnedList.shuffled().take(COUNT_VARIANTS)
+        val variants = notLearnedList.shuffled().take(COUNT_VARIANTS).toMutableList()
 
-        val correctAnswer = variants.random()
-        val questionWords = prepareVariants(dictionary, notLearnedList.size)
+        val correctAnswer = prepareVariantsAndGetCorrectAnswer(variants, notLearnedList.size)
 
-        question = Question(questionWords, correctAnswer)
+        question = Question(variants, correctAnswer)
         return question
     }
 
@@ -84,16 +83,14 @@ class LearnWordsTrainer {
         return dictionaries
     }
 
-    private fun prepareVariants(dictionary: List<Word>, currentVariantsSize: Int): List<Word> {
-        val variants = dictionary.shuffled().take(COUNT_VARIANTS)
+    private fun prepareVariantsAndGetCorrectAnswer(variants: MutableList<Word>, currentVariantsSize: Int): Word {
 
-        val questionWords = if (variants.size < COUNT_VARIANTS) {
+        val correctAnswer = variants.random()
+
+        if (variants.size < COUNT_VARIANTS) {
             val learnedList = dictionary.filter { it.correctAnswersCount >= MIN_COUNT_GOOD_ANSWER }.shuffled()
-            variants + learnedList.take(COUNT_VARIANTS - currentVariantsSize)
-        } else {
-            variants
-        }.shuffled()
-
-        return questionWords
+            variants.addAll(learnedList.take(COUNT_VARIANTS - currentVariantsSize))
+        }
+        return correctAnswer
     }
 }
