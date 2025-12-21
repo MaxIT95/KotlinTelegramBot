@@ -1,16 +1,15 @@
 ﻿package org.example
 
-import java.io.File
+import org.example.model.Question
 
 const val MIN_COUNT_GOOD_ANSWER = 3
 const val COUNT_VARIANTS = 4
-const val DICT_PATH = "src/main/resources/words.txt"
 const val SPLITTER = "|"
 const val NEXT_LINE = "\n"
 
 fun main() {
-    val file = File(DICT_PATH)
-    val dictionary = loadDictionary(file)
+
+    val trainer = LearnWordsTrainer()
 
     while (true) {
         println(
@@ -22,8 +21,36 @@ fun main() {
         val input = readln()
 
         when (input) {
-            "1" -> learnWords(dictionary)
-            "2" -> println(getStatistic(dictionary))
+            "1" -> {
+                while (true) {
+                    val question = trainer.getNextQuestion()
+
+                    if (question == null) {
+                        println("Все слова в словаре выучены")
+                        break
+                    }
+                    println("${question.correctAnswer.original}:")
+                    question.printVariants()
+                    val input = readln().toIntOrNull()
+                    val isCorrectAnswer = trainer.checkAnswer(input?.minus(1))
+
+                    if (isCorrectAnswer) {
+                        println("Правильно! $NEXT_LINE")
+                    } else {
+                        println("Неправильно! ${question.correctAnswer.original} это ${question.correctAnswer.translate} $NEXT_LINE")
+                    }
+
+                }
+            }
+
+            "2" -> {
+                val statistics = trainer.getStatistics()
+                println(
+                    "Выучено ${statistics.learnedCount} из ${statistics.allWordsCount} " +
+                            "слов $SPLITTER ${statistics.percent}%\n"
+                )
+            }
+
             "0" -> break
             else -> {
                 println("Введите число 1, 2 или 0")
@@ -32,87 +59,9 @@ fun main() {
     }
 }
 
-fun learnWords(dictionary: List<Word>) {
-    while (true) {
-        val notLearnedList = dictionary.filter { it.correctAnswersCount <= MIN_COUNT_GOOD_ANSWER }
-        if (notLearnedList.isEmpty()) {
-            println("Все слова в словаре выучены")
-            break
-        }
-        val variants = notLearnedList.shuffled().take(COUNT_VARIANTS)
-
-        val correctAnswer = variants.random()
-        val questionWords = if (variants.size < COUNT_VARIANTS) {
-            val learnedList = dictionary.filter { it.correctAnswersCount >= MIN_COUNT_GOOD_ANSWER }.shuffled()
-            variants + learnedList.take(COUNT_VARIANTS - notLearnedList.size)
-        } else {
-            variants
-        }.shuffled()
-        println("${correctAnswer.original}:")
-        questionWords.forEachIndexed { index, word ->
-            println(" ${index + 1} - ${word.translate}\n")
-        }
-        println("----------\n0 - Меню")
-
-        val inputAnswer = readln().toIntOrNull()
-
-        if (inputAnswer == null) {
-            println("Вы не указали номер ответа")
-            continue
-        }
-
-        if (inputAnswer == 0) {
-            break
-        } else {
-            if (questionWords[inputAnswer - 1] == correctAnswer) {
-                println("Правильно! $NEXT_LINE")
-                correctAnswer.correctAnswersCount++
-                saveDictionary(dictionary)
-            } else {
-                println("Неправильно! ${correctAnswer.original} это ${correctAnswer.translate} $NEXT_LINE")
-            }
-        }
+fun Question.printVariants() {
+    variants.forEachIndexed { index, word ->
+        println(" ${index + 1} - ${word.translate}\n")
     }
-}
-
-fun saveDictionary(dictionary: List<Word>) {
-    val file = File(DICT_PATH)
-    val newDictionary = StringBuilder()
-
-    dictionary.forEach {
-        newDictionary.append(it.original)
-        newDictionary.append(SPLITTER)
-        newDictionary.append(it.translate)
-        newDictionary.append(SPLITTER)
-        newDictionary.append(it.correctAnswersCount)
-        newDictionary.append(NEXT_LINE)
-    }
-    file.writeText(newDictionary.toString())
-}
-
-fun getStatistic(words: List<Word>): String {
-    val allWordsCount = words.size
-    val learnedCount = words.filter { it.correctAnswersCount >= MIN_COUNT_GOOD_ANSWER }.size
-    var percent = 0
-
-    if (allWordsCount > 0) {
-        percent = (learnedCount * 100) / allWordsCount
-    }
-    return "Выучено $learnedCount из $allWordsCount слов $SPLITTER $percent%\n"
-}
-
-fun loadDictionary(file: File): List<Word> {
-    val dictionaries = mutableListOf<Word>()
-    val lines = file.readLines()
-
-    lines.forEach {
-        val line = it.split(SPLITTER)
-        val word = Word(line[0], line[1])
-
-        if (line[2].isNotEmpty()) {
-            word.correctAnswersCount = line[2].toInt()
-        }
-        dictionaries.add(word)
-    }
-    return dictionaries
+    println("----------\n0 - Меню")
 }
