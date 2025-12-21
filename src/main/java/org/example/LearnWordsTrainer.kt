@@ -67,20 +67,24 @@ class LearnWordsTrainer {
     }
 
     private fun loadDictionary(): List<Word> {
-        val file = File(DICT_PATH)
-        val dictionaries = mutableListOf<Word>()
-        val lines = file.readLines()
+        try {
+            val file = File(DICT_PATH)
+            val dictionaries = mutableListOf<Word>()
+            val lines = file.readLines()
 
-        lines.forEach {
-            val line = it.split(SPLITTER)
-            val word = Word(line[0], line[1])
+            lines.forEach {
+                val line = it.split(SPLITTER)
+                val word = Word(line[0], line[1])
 
-            if (line[2].isNotEmpty()) {
-                word.correctAnswersCount = line[2].toInt()
+                if (line[2].isNotEmpty()) {
+                    word.correctAnswersCount = line[2].toInt()
+                }
+                dictionaries.add(word)
             }
-            dictionaries.add(word)
+            return dictionaries
+        } catch (e: IndexOutOfBoundsException) {
+            throw IllegalStateException("Некорректный файл")
         }
-        return dictionaries
     }
 
     private fun prepareVariantsAndGetCorrectAnswer(variants: MutableList<Word>, currentVariantsSize: Int): Word {
