@@ -10,14 +10,28 @@ const val TELEGRAM_URL = "https://api.telegram.org/bot"
 fun main(args: Array<String>) {
 
     val token = args[0]
-    val urlGetMe = "$TELEGRAM_URL$token/getMe"
-    val urlGetUpdates = "$TELEGRAM_URL$token/getUpdates"
+    var updateId = 0
 
-    val getMeResponse = sendHttpRequest(urlGetMe)
+    while (true) {
+        Thread.sleep(2000)
+        val updatesResponse = getUpdates(token, updateId)
+        println("getUpdates response: $updatesResponse")
+        val startUpdateId = updatesResponse.indexOf("update_id")
+        val endUpdateId = updatesResponse.lastIndexOf(",\n\"message\"")
+        if (startUpdateId == -1 || endUpdateId == -1) {
+            continue
+        }
+        val substring = updatesResponse.substring(startUpdateId + 11, endUpdateId)
+
+        updateId = substring.toInt() + 1
+    }
+}
+
+fun getUpdates(botToken: String, updateId: Int): String {
+    val urlGetUpdates = "$TELEGRAM_URL$botToken/getUpdates?offset=$updateId"
     val getUpdatesResponse = sendHttpRequest(urlGetUpdates)
 
-    println("getMe response: ${getMeResponse.body()}")
-    println("getUpdates response: ${getUpdatesResponse.body()}")
+    return getUpdatesResponse.body()
 }
 
 fun sendHttpRequest(url: String): HttpResponse<String> {
