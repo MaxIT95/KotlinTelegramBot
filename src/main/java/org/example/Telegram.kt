@@ -16,7 +16,7 @@ fun main(args: Array<String>) {
         Thread.sleep(2000)
         val updatesResponse = getUpdates(token, updateId)
         println("getUpdates response: $updatesResponse")
-        val startUpdateId = updatesResponse.lastIndexOf("update_id")
+        val startUpdateId = updatesResponse.indexOf("update_id")
         val endUpdateId = updatesResponse.lastIndexOf(",\n\"message\"")
         if (startUpdateId == -1 || endUpdateId == -1) {
             continue
